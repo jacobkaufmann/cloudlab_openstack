@@ -4480,7 +4480,7 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 
 # image for ComputeNode(s)
 wget -O /tmp/setup/Compute.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
-glance image-delete $image_id
+# glance image-delete $image_id
 glance image-create --name Compute --disk-format vmdk --visibility public --container-format < /tmp/setup/Compute.vmdk
 
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
