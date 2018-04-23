@@ -4476,7 +4476,7 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 # openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id head
 
 # Remove image for HeadNode
-rm /tmp/setup/OL7.vmdk
+# rm /tmp/setup/OL7.vmdk
 
 # image for ComputeNode(s)
 wget -O /tmp/setup/Compute.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
