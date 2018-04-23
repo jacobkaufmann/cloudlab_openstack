@@ -4453,42 +4453,51 @@ network_id=`openstack network show -f shell flat-lan-1-net | grep "^id=" | cut -
 subnet_id=`openstack network show -f shell flat-lan-1-net | grep "^subnets=" | cut -d'"' -f 2`
 
 # See https://docs.openstack.org/python-openstackclient/pike/cli/command-objects/port.html
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.21 node1
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.22 node2
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.23 node3
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.24 node4
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.41 storagenode1
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.42 storagenode2
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.31 computenode1
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.32 computenode2
 
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
 # wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/5dukzod4ftj9v3g5r8q0ktxzweuj2vvw.vmdk
 # wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/s3boy014q1289b22zczf7eeg1yvrylqb.vmdk
 # wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/s3boy014q1289b22zczf7eeg1yvrylqb.vmdk
+
 # image for HeadNode
-wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/vzog69ts5122h9m6awsg8852gbvg79pw.vmdk
-glance image-create --name OL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/OL7.vmdk
-# image for OFS
-# wget -O /tmp/setup/OFS.vmdk https://clemson.box.com/shared/static/m63daf5zxqssgrj800m4ttwfn7117xjn.vmdk
-# glance image-create --name OFS --disk-format vmdk --visibility public --container-format < /tmp/setup/OFS.vmdk
+# wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/vzog69ts5122h9m6awsg8852gbvg79pw.vmdk
+# glance image-create --name OL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/OL7.vmdk
+
+# image for ComputeNode(s)
+wget -O /tmp/setup/Vanilla.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
+
+# image for StorageNode(s)
+wget -O /tmp/setup/OFS.vmdk https://clemson.box.com/shared/static/xehd1irk3vum55ap7p7cp483bgw0mhw9.vmdk
+glance image-create --name OFS --disk-format vmdk --visibility public --container-format < /tmp/setup/OFS.vmdk
 
 
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
 flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
-image_id=`openstack image list -f value | grep OL7 | cut -d' ' -f 1`
+image_id=`openstack image list -f value | grep OFS | cut -d' ' -f 1`
 security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
-port_id=`openstack port list -f value | grep node4 | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep storagenode1 | cut -d' ' -f 1`
 
 # See https://docs.openstack.org/mitaka/install-guide-ubuntu/launch-instance-selfservice.html
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id headnode
+openstack server create --flavor m1.medium --security-group $security_id --image OFS --nic port-id=$port_id storagenode1
 
-port_id=`openstack port list -f value | grep node3 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id subnode1
+port_id=`openstack port list -f value | grep storagenode2 | cut -d' ' -f 1`
+openstack server create --flavor m1.medium --security-group $security_id --image OFS --nic port-id=$port_id storagenode2
 
-port_id=`openstack port list -f value | grep node2 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id subnode2
+glance image-delete image_id
+image_id=`openstack image list -f value | grep Vanilla | cut -d' ' -f 1`
+glance image-create --name Vanilla --disk-format vmdk --visibility public --container-format < /tmp/setup/Vanilla.vmdk
 
-port_id=`openstack port list -f value | grep node1 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id subnode3
+port_id=`openstack port list -f value | grep computenode1 | cut -d' ' -f 1`
+openstack server create --flavor m1.medium --security-group $security_id --image Vanilla --nic port-id=$port_id computenode1
 
+port_id=`openstack port list -f value | grep computenode2 | cut -d' ' -f 1`
+openstack server create --flavor m1.medium --security-group $security_id --image Vanilla --nic port-id=$port_id computenode2
 
+glance image-delete image_id
 
 echo "***"
 echo "*** Done with OpenStack Setup!"
