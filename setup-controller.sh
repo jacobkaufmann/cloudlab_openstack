@@ -4453,12 +4453,12 @@ network_id=`openstack network show -f shell flat-lan-1-net | grep "^id=" | cut -
 subnet_id=`openstack network show -f shell flat-lan-1-net | grep "^subnets=" | cut -d'"' -f 2`
 
 # See https://docs.openstack.org/python-openstackclient/pike/cli/command-objects/port.html
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.21 headnode
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.22 computenode1
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.23 computenode2
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.24 computenode3
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.45 storagenode1
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.46 storagenode2
+# openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.21 headnode
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.22 computenode2
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.23 computenode3
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.24 computenode4
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.45 storagenode5
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.46 storagenode6
 
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
 
@@ -4489,15 +4489,15 @@ image_id=`openstack image list -f value | grep computenode | cut -d' ' -f 1`
 security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
 
 # ComputeNode1
-port_id=`openstack port list -f value | grep computenode1 | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep computenode2 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute1
 
 # ComputeNode2
-port_id=`openstack port list -f value | grep computenode2 | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep computenode3 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute2
 
 # ComputeNode3
-port_id=`openstack port list -f value | grep computenode3 | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep computenode4 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute3
 
 # Remove image for ComputeNode(s)
@@ -4514,11 +4514,11 @@ image_id=`openstack image list -f value | grep storagenode | cut -d' ' -f 1`
 security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
 
 # StorageNode1
-port_id=`openstack port list -f value | grep storagenode1 | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep storagenode5 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image storagenode --nic port-id=$port_id storage1
 
 # StorageNode2
-port_id=`openstack port list -f value | grep storagenode2 | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep storagenode6 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image storagenode --nic port-id=$port_id storage2
 
 # Remove image for StorageNode(s)
