@@ -4457,8 +4457,8 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.22 computenode1
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.23 computenode2
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.24 computenode3
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.25 storagenode1
-openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.26 storagenode2
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.45 storagenode1
+openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.46 storagenode2
 
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
 
@@ -4479,50 +4479,50 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 # rm /tmp/setup/OL7.vmdk
 
 # image for ComputeNode(s)
-wget -O /tmp/setup/Compute.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
+wget -O /tmp/setup/computenode.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
 # glance image-delete $image_id
-glance image-create --name Compute --disk-format vmdk --visibility public --container-format < /tmp/setup/Compute.vmdk
+glance image-create --name computenode --disk-format vmdk --visibility public --container-format < /tmp/setup/computenode.vmdk
 
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
 flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
-image_id=`openstack image list -f value | grep Compute | cut -d' ' -f 1`
+image_id=`openstack image list -f value | grep computenode | cut -d' ' -f 1`
 security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
 
 # ComputeNode1
 port_id=`openstack port list -f value | grep computenode1 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image Compute --nic port-id=$port_id compute1
+openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute1
 
 # ComputeNode2
 port_id=`openstack port list -f value | grep computenode2 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image Compute --nic port-id=$port_id compute2
+openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute2
 
 # ComputeNode3
 port_id=`openstack port list -f value | grep computenode3 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image Compute --nic port-id=$port_id compute3
+openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute3
 
 # Remove image for ComputeNode(s)
-rm /tmp/setup/Compute.vmdk
+rm /tmp/setup/computenode.vmdk
 
 # image for StorageNode(s)
-wget -O /tmp/setup/Storage.vmdk https://clemson.box.com/shared/static/xehd1irk3vum55ap7p7cp483bgw0mhw9.vmdk
+wget -O /tmp/setup/storagenode.vmdk https://clemson.box.com/shared/static/xehd1irk3vum55ap7p7cp483bgw0mhw9.vmdk
 glance image-delete $image_id
-glance image-create --name Storage --disk-format vmdk --visibility public --container-format < /tmp/setup/Storage.vmdk
+glance image-create --name storagenode --disk-format vmdk --visibility public --container-format < /tmp/setup/storagenode.vmdk
 
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
 flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
-image_id=`openstack image list -f value | grep Storage | cut -d' ' -f 1`
+image_id=`openstack image list -f value | grep storagenode | cut -d' ' -f 1`
 security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
 
 # StorageNode1
 port_id=`openstack port list -f value | grep storagenode1 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image Storage --nic port-id=$port_id storage1
+openstack server create --flavor m1.medium --security-group $security_id --image storagenode --nic port-id=$port_id storage1
 
 # StorageNode2
 port_id=`openstack port list -f value | grep storagenode2 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image Storage --nic port-id=$port_id storage2
+openstack server create --flavor m1.medium --security-group $security_id --image storagenode --nic port-id=$port_id storage2
 
 # Remove image for StorageNode(s)
-rm /tmp/setup/Storage.vmdk
+rm /tmp/setup/storagenode.vmdk
 
 echo "***"
 echo "*** Done with OpenStack Setup!"
