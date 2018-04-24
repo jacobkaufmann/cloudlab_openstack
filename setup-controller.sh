@@ -4479,9 +4479,9 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 # rm /tmp/setup/OL7.vmdk
 
 # image for ComputeNode(s)
-wget -O /tmp/setup/computenode.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
+wget -O /tmp/setup/VanillaOLINUX.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
 # glance image-delete $image_id
-glance image-create --name computenode --disk-format vmdk --visibility public --container-format < /tmp/setup/computenode.vmdk
+glance image-create --name computenode --disk-format vmdk --visibility public --container-format < /tmp/setup/VanillaOLINUX.vmdk
 
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
 flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
@@ -4501,7 +4501,7 @@ port_id=`openstack port list -f value | grep testport4 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image computenode --nic port-id=$port_id compute3
 
 # Remove image for ComputeNode(s)
-rm /tmp/setup/computenode.vmdk
+#rm /tmp/setup/computenode.vmdk
 
 # image for StorageNode(s)
 #wget -O /tmp/setup/storagenode.vmdk https://clemson.box.com/shared/static/xehd1irk3vum55ap7p7cp483bgw0mhw9.vmdk
