@@ -4480,7 +4480,8 @@ port_id=`openstack port list -f value | grep testport3 | cut -d' ' -f 1`
 openstack server create --flavor m1.medium --security-group $security_id --image StorageOL7 --nic port-id=$port_id storagenode2
 
 # Remove image for storage nodes
-
+glance image-delete $image_id
+rm /tmp/setup/StorageOL7.vmdk
 
 # Image creation for compute nodes
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
