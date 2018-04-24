@@ -4479,7 +4479,7 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 # rm /tmp/setup/OL7.vmdk
 
 # image for ComputeNode(s)
-wget -O /tmp/setup/VanillaOLINUX.vmdk https://clemson.box.com/shared/static/x4qyye6ntxsjdnthlw15mdi34whhz1cm.vmdk
+wget -O /tmp/setup/VanillaOLINUX.vmdk https://clemson.box.com/shared/static/f3zptmpve28g8g4ul9mnzof31p2q8h84.vmdk
 # glance image-delete $image_id
 glance image-create --name computenode --disk-format vmdk --visibility public --container-format < /tmp/setup/VanillaOLINUX.vmdk
 
