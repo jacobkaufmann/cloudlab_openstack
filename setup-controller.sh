@@ -4460,24 +4460,49 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.25 testport5
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.26 testport6
 
+# Image creation for storage nodes
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
-wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/mlaqc2q1d3v52os3al3qft5nptehk4mq.vmdk
-glance image-create --name OL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/OL7.vmdk
+wget -O /tmp/setup/StorageOL7.vmdk https://clemson.box.com/shared/static/ixudxr0zgfzenm4v8fd2b8mvlldxehgr.vmdk
+glance image-create --name StorageOL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/StorageOL7.vmdk
 
+# Gather respective ids for storage nodes
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
 flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
-image_id=`openstack image list -f value | grep OL7 | cut -d' ' -f 1`
+image_id=`openstack image list -f value | grep StorageOL7 | cut -d' ' -f 1`
 security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
-port_id=`openstack port list -f value | grep testport1 | cut -d' ' -f 1`
-
-# See https://docs.openstack.org/mitaka/install-guide-ubuntu/launch-instance-selfservice.html
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id node1
-
 port_id=`openstack port list -f value | grep testport2 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id node2
+
+# Create server instances for storage nodes
+# See https://docs.openstack.org/mitaka/install-guide-ubuntu/launch-instance-selfservice.html
+openstack server create --flavor m1.medium --security-group $security_id --image StorageOL7 --nic port-id=$port_id storagenode1
 
 port_id=`openstack port list -f value | grep testport3 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image OL7 --nic port-id=$port_id node3
+openstack server create --flavor m1.medium --security-group $security_id --image StorageOL7 --nic port-id=$port_id storagenode2
+
+# Remove image for storage nodes
+
+
+# Image creation for compute nodes
+# See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
+wget -O /tmp/setup/ComputeOL7.vmdk https://clemson.box.com/shared/static/mlaqc2q1d3v52os3al3qft5nptehk4mq.vmdk
+glance image-create --name ComputeOL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/ComputeOL7.vmdk
+
+
+# Gather respective ids for storage nodes
+project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
+flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
+image_id=`openstack image list -f value | grep ComputeOL7 | cut -d' ' -f 1`
+security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep testport4 | cut -d' ' -f 1`
+
+# See https://docs.openstack.org/mitaka/install-guide-ubuntu/launch-instance-selfservice.html
+openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode1
+
+port_id=`openstack port list -f value | grep testport5 | cut -d' ' -f 1`
+openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode2
+
+port_id=`openstack port list -f value | grep testport6 | cut -d' ' -f 1`
+openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode3
 
 
 echo "***"
