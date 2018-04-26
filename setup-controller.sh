@@ -4460,6 +4460,25 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.25 testport5
 openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-address=10.11.10.26 testport6
 
+# Image creation for head node
+wget -O /tmp/setup/HeadOL7.vmdk https://clemson.box.com/shared/static/ytvttlymiucpqniaao4f6uw07p65ejco.vmdk
+glance image-create --name HeadOL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/HeadOL7.vmdk
+
+# Gather respective ids for storage nodes
+project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
+flavor_id=`openstack flavor list -f value | grep m1.small | cut -d' ' -f 1`
+image_id=`openstack image list -f value | grep HeadOL7 | cut -d' ' -f 1`
+security_id=`openstack security group list -f value | grep $project_id | cut -d' ' -f 1`
+port_id=`openstack port list -f value | grep testport1 | cut -d' ' -f 1`
+
+# Create server instances for head node
+# See https://docs.openstack.org/mitaka/install-guide-ubuntu/launch-instance-selfservice.html
+openstack server create --flavor m1.medium --security-group $security_id --image HeadOL7 --nic port-id=$port_id headnode
+
+# Remove image for head node
+glance image-delete $image_id
+rm /tmp/setup/HeadOL7.vmdk
+
 # Image creation for storage nodes
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
 wget -O /tmp/setup/StorageOL7.vmdk https://clemson.box.com/shared/static/ixudxr0zgfzenm4v8fd2b8mvlldxehgr.vmdk
