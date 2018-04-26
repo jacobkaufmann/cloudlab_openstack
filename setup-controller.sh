@@ -4462,8 +4462,8 @@ openstack port create --network ${network_id} --fixed-ip subnet=${subnet_id},ip-
 
 # Retrieve and create image for head node
 # See https://docs.openstack.org/project-install-guide/baremetal/draft/configure-glance-images.html
-wget -O /tmp/setup/OL7.vmdk https://clemson.box.com/shared/static/ytvttlymiucpqniaao4f6uw07p65ejco.vmdk
-glance image-create --name OL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/OL7.vmdk
+wget -O /tmp/setup/HeadOL7.vmdk https://clemson.box.com/shared/static/ytvttlymiucpqniaao4f6uw07p65ejco.vmdk
+glance image-create --name HeadOL7 --disk-format vmdk --visibility public --container-format bare < /tmp/setup/HeadOL7.vmdk
 
 # Set proper ids
 project_id=`openstack project list -f value | grep admin | cut -d' ' -f 1`
@@ -4520,7 +4520,7 @@ openstack server create --flavor m1.medium --security-group $security_id --image
 #openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode1
 
 port_id=`openstack port list -f value | grep testport5 | cut -d' ' -f 1`
-openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode2
+#openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode2
 
 port_id=`openstack port list -f value | grep testport6 | cut -d' ' -f 1`
 #openstack server create --flavor m1.medium --security-group $security_id --image ComputeOL7 --nic port-id=$port_id computenode3
